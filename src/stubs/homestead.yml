@@ -1,0 +1,113 @@
+ip: dhcp
+#dhcp generates ips, you can also set a static ip
+#ip: 192.168.50.10
+memory: 2048
+cpus: 1
+provider: virtualbox
+#authorize: ~/.ssh/id_rsa.pub
+keys: [ ~/.ssh/id_rsa ]
+enable_forward_agent: true
+enable_hostmanager: true
+enable_hostmanager_ipresolver: true
+#enable_hostsupdater: true
+enable_update_composer: true
+enable_clear_webserver: true
+enable_bindfs: false
+#remove:
+#  - apache
+#  - beanstalkd
+#  - mariadb
+#  - memcached
+#  - mongodb
+#  - mysql
+#  - nginx
+#  - postgresql
+#  - redis
+#install:
+# - apache
+# - mariadb
+# - mongodb
+# - mysql
+# - nginx
+# - postgresql
+#override:
+#  file: './config/customHomestead.rb'
+#  class: 'CustomHomestead'
+folders:
+    - map: .
+      to: /home/vagrant/application
+#    - map: ./sites/phpinfo
+#      to: /home/vagrant/phpinfo
+#    - map: ../symfony
+#      to: /home/vagrant/phpinfo
+#    - map: ../test
+#      to: /home/vagrant/test
+sites:
+    - map: application.app
+      to: /home/vagrant/application
+#    - map: phpinfo.app
+#      to: /home/vagrant/phpinfo
+#    - map: hhvminfo.app
+#      to: /home/vagrant/phpinfo
+#      type: hhvm
+#    - map: symfony.app
+#      to: /home/vagrant/symfony/web
+#      type: symfony
+#      mode: symlink
+#      value: /home/vagrant/symfony/app/config/vhost_dev.conf
+#    - map: test.dev
+#      to: /home/vagrant/test.dev
+#      type: disabled
+databases:
+    - name: homestead
+      type: mysql
+    - name: homestead
+      type: postgresql
+#    - test #string is considered a mysql db name
+#before_scripts:
+#    - path: ./config/before.sh
+#      privileged: false
+#this scripts allows to use a standard ubuntu xenial box instad of laravel/homestead box, required mainly for digitalocean provisioning where you can use only their boxes
+#    - path: ./scripts/ubuntu16-provision.sh
+#      privileged: true
+#after_scripts:
+#    - name: Test after script
+#      path: ./config/after.sh
+#      privileged: false
+##string is considered directly as script path
+#    - ./test.sh
+
+copy:
+  - from: ./config/aliases
+    to: ~/.bash_aliases
+
+##uncomment this to use blackfire
+#blackfire:
+#    id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+#    token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#    client-id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+#    client-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+##uncomment this to use digitalocean, don't forget your token:)
+#digitalocean:
+#    token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#    image: ubuntu-16-04-x64
+#    region: nyc2
+#    size: 512mb
+
+#ports:
+##ssh
+#    - send: 22
+#      to: 2222
+##http
+#    - send: 80
+#      to: 8000
+##https
+#    - send: 443
+#      to: 44300
+##mysql
+#    - send: 3306
+#      to: 33060
+##postgresql
+#    - send: 5432
+#      to: 54320

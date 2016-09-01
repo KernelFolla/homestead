@@ -49,7 +49,7 @@ class MakeCommand extends Command
             ->addOption('ip', null, InputOption::VALUE_OPTIONAL, 'The IP address of the virtual machine.')
             ->addOption('after', null, InputOption::VALUE_NONE, 'Determines if the after.sh file is created.')
             ->addOption('aliases', null, InputOption::VALUE_NONE, 'Determines if the aliases file is created.')
-            ->addOption('example', null, InputOption::VALUE_NONE, 'Determines if a Homestead.yaml.example file is created.');
+            ->addOption('example', null, InputOption::VALUE_NONE, 'Determines if a homestead.yml.example file is created.');
     }
 
     /**
@@ -65,8 +65,8 @@ class MakeCommand extends Command
             copy(__DIR__.'/stubs/LocalizedVagrantfile', $this->basePath.'/Vagrantfile');
         }
 
-        if (! file_exists($this->basePath.'/Homestead.yaml') && ! file_exists($this->basePath.'/Homestead.yaml.example')) {
-            copy(__DIR__.'/stubs/Homestead.yaml', $this->basePath.'/Homestead.yaml');
+        if (! file_exists($this->basePath.'/homestead.yml') && ! file_exists($this->basePath.'/homestead.yml.example')) {
+            copy(__DIR__.'/stubs/homestead.yml', $this->basePath.'/homestead.yml');
 
             if ($input->getOption('name')) {
                 $this->updateName($input->getOption('name'));
@@ -79,29 +79,17 @@ class MakeCommand extends Command
             if ($input->getOption('ip')) {
                 $this->updateIpAddress($input->getOption('ip'));
             }
-        } elseif (! file_exists($this->basePath.'/Homestead.yaml')) {
-            copy($this->basePath.'/Homestead.yaml.example', $this->basePath.'/Homestead.yaml');
+        } elseif (! file_exists($this->basePath.'/homestead.yml')) {
+            copy($this->basePath.'/homestead.yml.example', $this->basePath.'/homestead.yml');
 
             if ($input->getOption('ip')) {
                 $this->updateIpAddress($input->getOption('ip'));
             }
         }
 
-        if ($input->getOption('after')) {
-            if (! file_exists($this->basePath.'/after.sh')) {
-                copy(__DIR__.'/stubs/after.sh', $this->basePath.'/after.sh');
-            }
-        }
-
-        if ($input->getOption('aliases')) {
-            if (! file_exists($this->basePath.'/aliases')) {
-                copy(__DIR__.'/stubs/aliases', $this->basePath.'/aliases');
-            }
-        }
-
         if ($input->getOption('example')) {
-            if (! file_exists($this->basePath.'/Homestead.yaml.example')) {
-                copy($this->basePath.'/Homestead.yaml', $this->basePath.'/Homestead.yaml.example');
+            if (! file_exists($this->basePath.'/homestead.yml.example')) {
+                copy($this->basePath.'/homestead.yml', $this->basePath.'/Homestead.yml.example');
             }
         }
 
@@ -111,7 +99,7 @@ class MakeCommand extends Command
     }
 
     /**
-     * Update paths in Homestead.yaml.
+     * Update paths in homestead.yml.
      *
      * @return void
      */
@@ -130,11 +118,11 @@ class MakeCommand extends Command
             $this->defaultName.'"/Laravel/public', $this->defaultName.'/public"', $yaml
         );
 
-        file_put_contents($this->basePath.'/Homestead.yaml', $yaml);
+        file_put_contents($this->basePath.'/homestead.yml', $yaml);
     }
 
     /**
-     * Update the "name" variable of the Homestead.yaml file.
+     * Update the "name" variable of the homestead.yml file.
      *
      * VirtualBox requires a unique name for each virtual machine.
      *
@@ -143,44 +131,44 @@ class MakeCommand extends Command
      */
     protected function updateName($name)
     {
-        file_put_contents($this->basePath.'/Homestead.yaml', str_replace(
+        file_put_contents($this->basePath.'/homestead.yml', str_replace(
             'cpus: 1', 'cpus: 1'.PHP_EOL.'name: '.$name, $this->getHomesteadFile()
         ));
     }
 
     /**
-     * Set the virtual machine's hostname setting in the Homestead.yaml file.
+     * Set the virtual machine's hostname setting in the homestead.yml file.
      *
      * @param  string  $hostname
      * @return void
      */
     protected function updateHostName($hostname)
     {
-        file_put_contents($this->basePath.'/Homestead.yaml', str_replace(
+        file_put_contents($this->basePath.'/homestead.yml', str_replace(
             'cpus: 1', 'cpus: 1'.PHP_EOL.'hostname: '.$hostname, $this->getHomesteadFile()
         ));
     }
 
     /**
-     * Set the virtual machine's IP address setting in the Homestead.yaml file.
+     * Set the virtual machine's IP address setting in the homestead.yml file.
      *
      * @param  string  $ip
      * @return void
      */
     protected function updateIpAddress($ip)
     {
-        file_put_contents($this->basePath.'/Homestead.yaml', str_replace(
-            'ip: "192.168.10.10"', 'ip: "'.$ip.'"', $this->getHomesteadFile()
+        file_put_contents($this->basePath.'/homestead.yml', str_replace(
+            'ip: "192.168.50.10"', 'ip: "'.$ip.'"', $this->getHomesteadFile()
         ));
     }
 
     /**
-     * Get the contents of the Homestead.yaml file.
+     * Get the contents of the homestead.yml file.
      *
      * @return string
      */
     protected function getHomesteadFile()
     {
-        return file_get_contents($this->basePath.'/Homestead.yaml');
+        return file_get_contents($this->basePath.'/homestead.yml');
     }
 }

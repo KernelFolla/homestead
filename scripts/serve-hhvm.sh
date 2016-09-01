@@ -14,7 +14,8 @@ then
   openssl x509 -req -days 365 -in "$PATH_CSR" -signkey "$PATH_KEY" -out "$PATH_CRT" 2>/dev/null
 fi
 
-block="server {
+if [ "$5" == "standard" ]; then
+  block="server {
     listen ${3:-80};
     listen ${4:-443} ssl http2;
     server_name $1;
@@ -51,8 +52,16 @@ block="server {
     ssl_certificate     /etc/nginx/ssl/$1.crt;
     ssl_certificate_key /etc/nginx/ssl/$1.key;
 }
-"
+  "
+  echo "$block" > "/etc/nginx/sites-available/$1"
+  ln -fs "/etc/nginx/sites-available/$1" "/etc/nginx/sites-enabled/$1"
+  service hhvm restart
 
-echo "$block" > "/etc/nginx/sites-available/$1"
-ln -fs "/etc/nginx/sites-available/$1" "/etc/nginx/sites-enabled/$1"
-service hhvm restart
+  echo "$block" > "/etc/nginx/sites-available/$1.conf"
+  echo "standard vhost in /etc/nginx/sites-available/$1.conf"
+elif [ "$5" == "symlink" ]; then
+  ln -fs "$6" "/etc/nginx/sites-available/$1.conf"
+  echo "vhost symlinked from $6 to /etc/apache2/sites-available/$1.conf"
+else
+  echo "nothing to do"
+fi

@@ -1,29 +1,33 @@
+while fuser /var/lib/dpkg/lock /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
+	echo "Waiting for other software managers to finish..."
+	sleep 2
+done
 
 # Check If Maria Has Been Installed
-
-if [ -f /home/vagrant/.maria ]
+if [ ! $(dpkg-query -W -f='${Status}' mariadb-server 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
     echo "MariaDB already installed."
     exit 0
 fi
 
-touch /home/vagrant/.maria
-
 # Remove MySQL
+if [ ! $(dpkg-query -W -f='${Status}' mysql-server 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+  apt-get remove -y --purge mysql-server mysql-client mysql-common -qq > /dev/null
+  apt-get autoremove -y -qq > /dev/null
+  apt-get autoclean -qq > /dev/null
 
-apt-get remove -y --purge mysql-server mysql-client mysql-common
-apt-get autoremove -y
-apt-get autoclean
-
-rm -rf /var/lib/mysql
-rm -rf /var/log/mysql
-rm -rf /etc/mysql
-
+  rm -rf /var/lib/mysql
+  rm -rf /var/log/mysql
+  rm -rf /etc/mysql
+  echo "Mysql removed with success."
+fi
 # Add Maria PPA
 
 apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://ftp.osuosl.org/pub/mariadb/repo/10.1/ubuntu xenial main'
-apt-get update
+
+apt-get update -qq
 
 # Set The Automated Root Password
 
@@ -35,7 +39,7 @@ debconf-set-selections <<< "mariadb-server-10.1 mysql-server/root_password_again
 
 # Install MariaDB
 
-apt-get install -y mariadb-server
+apt-get install -y mariadb-server -qq  > /dev/null
 
 # Configure Password Expiration
 
@@ -53,3 +57,4 @@ mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO 'homestead'@'0.0
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO 'homestead'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 service mysql restart
+echo "Mariadb installed with success."

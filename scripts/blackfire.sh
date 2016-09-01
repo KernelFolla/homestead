@@ -22,6 +22,9 @@ timeout=15s
 echo "$agent" > "/etc/blackfire/agent"
 echo "$client" > "/home/vagrant/.blackfire.ini"
 
-service hhvm restart
+if [ -f /etc/init.d/hhvm ]; then
+    service hhvm restart
+fi
+
 service php7.0-fpm restart
 service blackfire-agent restart
