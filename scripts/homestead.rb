@@ -188,9 +188,13 @@ class Homestead
       ret = ''
       @config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
         if vm.id && Vagrant::Util::Platform.windows?
-            ret = `\"#{ENV['VBOX_MSI_INSTALL_PATH']}\\VBoxManage\" guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+          ret = `\"#{ENV['VBOX_MSI_INSTALL_PATH']}\\VBoxManage\" guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
         else
-            ret = `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+          ret = `VBoxManage guestproperty get #{vm.id} "/VirtualBox/GuestInfo/Net/1/V4/IP"`.split()[1]
+          if ret == "value"
+            puts "IMPORTANT: you need to run vagrant hostmanager separately because ip is not yet created"
+            ret = nil
+          end
         end
         puts "Box ip: #{ret}"
         ret
@@ -201,10 +205,10 @@ class Homestead
         if hostname = (vm.ssh_info && vm.ssh_info[:host])
           vm.communicate.execute("hostname -I") do |type, contents|
             ret = contents.split("\n").first[/(\d+\.\d+\.\d+\.\d+)/, 1]
-            puts "Box ip: #{ret}"
-            ret
           end
         end
+        puts "Box ip: #{ret}"
+        ret
       end
     end
   end
