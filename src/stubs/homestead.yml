@@ -77,9 +77,9 @@ databases:
 ##string is considered directly as script path
 #    - ./test.sh
 
-copy:
-  - from: ./config/aliases
-    to: ~/.bash_aliases
+#copy:
+#  - from: ./config/aliases
+#    to: ~/.bash_aliases
 
 ##uncomment this to use blackfire
 #blackfire:
