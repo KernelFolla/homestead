@@ -41,16 +41,13 @@ override:
 I didn't because unfortunately at the moment many settings are no more backward compatible with the existing Laravel Homestead project.
 
 ## Install
-Because it's a fork i preferred to keep it out of packagist.org, so if you want to use it just customize your composer.json with these following lines
 
-{
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/kernelfolla/homestead"
-        }
-    ],
-    "require-dev": {
-        "kernelfolla/homestead": "dev-master"
-    }
-}
+### per project
+composer require kernelfolla/homestead --dev
+php vendor/bin/homestead make
+vagrant up
+
+### globally
+git clone https://github.com/kernelfolla/homestead.git
+cd homestead
+vagrant up
