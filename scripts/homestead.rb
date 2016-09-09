@@ -8,7 +8,7 @@ class Homestead
   def settings=(s)
     #you can send an object or just an array
     if s.is_a? String
-      s = Homestead.loadYamlFile(s)
+      s = Homestead.load_yaml_file(s)
     end
 
     #defining different directories in scripts_dirs you can override all shell scripts
@@ -48,7 +48,7 @@ class Homestead
     #writing override in your settings you can instantiate a different class
     if ret.settings.has_key?('override')
       unless ret.settings['override'].has_key?('file') && ret.settings['override'].has_key?('class')
-        ret.fail_with_message('Please define file and class to override the standard Homestead class')
+        Homestead.fail_with_message 'Please define file and class to override the standard Homestead class'
       end
       require File.expand_path(ret.settings['override']['file']);
       ret = Object.const_get(ret.settings['override']['class']).new(ret.settings)
@@ -57,12 +57,16 @@ class Homestead
     ret
   end
 
-  def self.loadYamlFile(fileName)
+  def self.load_yaml_file(fileName)
     unless File.file? fileName
-      fail_with_message "File #{fileName} not found"
+      Homestead.fail_with_message "File #{fileName} not found"
     end
 
     YAML::load(File.read(fileName))
+  end
+
+  def Homestead.fail_with_message(msg)
+    fail Vagrant::Errors::VagrantError.new, msg
   end
 
   def initialize(settings)
@@ -170,7 +174,7 @@ class Homestead
 
   def config_hostmanager()
     unless Vagrant.has_plugin? 'vagrant-hostmanager'
-      fail_with_message 'vagrant-hostmanager missing, please install the plugin with this command:\nvagrant plugin install vagrant-hostmanager'
+      Homestead.fail_with_message 'vagrant-hostmanager missing, please install the plugin with this command:\nvagrant plugin install vagrant-hostmanager'
     end
     @config.hostmanager.enabled = true
     @config.hostmanager.manage_host = true
@@ -215,7 +219,7 @@ class Homestead
 
   def config_hostsupdater()
     unless Vagrant.has_plugin? 'vagrant-hostsupdater'
-      fail_with_message 'vagrant-hostsupdater missing, please install the plugin with this command:\nvagrant plugin install vagrant-hostsupdater'
+      Homestead.fail_with_message 'vagrant-hostsupdater missing, please install the plugin with this command:\nvagrant plugin install vagrant-hostsupdater'
     end
     @config.hostsupdater.aliases = @settings['sites'].map { |item| item['map'] }
     puts 'Hostsupdater aliases: '+ @config.hostsupdater.aliases.inspect
@@ -270,7 +274,7 @@ class Homestead
 
   def config_provider_digitalocean()
     unless Vagrant.has_plugin? 'vagrant-digitalocean'
-      fail_with_message 'vagrant-digitalocean missing, please install the plugin with this command:\nvagrant plugin install vagrant-digitalocean, install also the box with vagrant box add digital_ocean https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box'
+      Homestead.fail_with_message 'vagrant-digitalocean missing, please install the plugin with this command:\nvagrant plugin install vagrant-digitalocean, install also the box with vagrant box add digital_ocean https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box'
     end
 
     @config.vm.provider :digital_ocean do |provider, override|
@@ -300,7 +304,7 @@ class Homestead
     # Prevent TTY Errors
     @config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-    unless @settings['enable_forward_agent']
+    if @settings['enable_forward_agent']
       # Allow SSH Agent Forward from The Box
       @config.ssh.forward_agent = true
     end
@@ -329,7 +333,7 @@ class Homestead
   def copy_file(file)
     @config.vm.provision 'file' do |f|
       f.source = File.expand_path(file['from'])
-      f.destination = file['to'].chomp('/') + '/' + file['from'].split('/').last
+      f.destination = file['to']
     end
   end
 
@@ -352,7 +356,7 @@ class Homestead
 
     if @settings['enable_bindfs']
       unless Vagrant.has_plugin? 'vagrant-bindfs'
-        fail_with_message 'vagrant-bindfs missing, please install the plugin with this command:\nvagrant plugin install vagrant-bindfs'
+        Homestead.fail_with_message 'vagrant-bindfs missing, please install the plugin with this command:\nvagrant plugin install vagrant-bindfs'
       end
       # Bindfs support to fix shared folder (NFS) permission issue on Mac
       if Vagrant.has_plugin?('vagrant-bindfs')
@@ -427,7 +431,7 @@ class Homestead
     end
 
     unless db.has_key?('type')
-      fail_with_message 'please define a type for database ' + db['name']
+      Homestead.fail_with_message 'please define a type for database ' + db['name']
     end
 
     case db['type']
@@ -444,7 +448,7 @@ class Homestead
           s.args = [db['name']]
         end
       else
-        fail_with_message "database type #{db['type']} not supported"
+        Homestead.fail_with_message "database type #{db['type']} not supported"
     end
   end
 
@@ -487,11 +491,11 @@ class Homestead
     end
 
     unless script.has_key? 'path'
-      fail_with_message "please define path parameter in your script called #{script['name']}"
+      Homestead.fail_with_message "please define path parameter in your script called #{script['name']}"
     end
 
     unless File.file? script['path']
-      fail_with_message "file #{script['path']} not found"
+      Homestead.fail_with_message "file #{script['path']} not found"
     end
 
     @config.vm.provision 'shell' do |s|
@@ -510,10 +514,6 @@ class Homestead
         return "#{dir}/#{name}"
       end
     end
-    fail_with_message("script #{name} not found in folders #{@settings['script_dirs'].inspect}")
-  end
-
-  def fail_with_message(msg)
-    fail Vagrant::Errors::VagrantError.new, msg
+    Homestead.fail_with_message("script #{name} not found in folders #{@settings['script_dirs'].inspect}")
   end
 end
