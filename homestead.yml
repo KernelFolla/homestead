@@ -30,6 +30,9 @@ enable_bindfs: false
 # - mysql
 # - nginx
 # - postgresql
+# - mailhog
+# - yarn
+# - prestissimo
 #override:
 #  file: './config/customHomestead.rb'
 #  class: 'CustomHomestead'

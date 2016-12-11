@@ -51,3 +51,11 @@ vagrant up
 git clone https://github.com/kernelfolla/homestead.git
 cd homestead
 vagrant up
+
+## Changelog
+
+### 1.0.1
+ - minor fix
+ - added new install options: yarn, prestissimo, mailhog
+### 1.0.0
+ - initial fork 
